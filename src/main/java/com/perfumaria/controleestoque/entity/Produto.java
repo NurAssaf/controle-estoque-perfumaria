@@ -29,4 +29,8 @@ public class Produto {
 
     @Column(nullable = false)
     private Integer quantidadeEstoque;
+
+    @ManyToOne
+    @JoinColumn(name = "categoria_id")
+    private Categoria categoria;
 }

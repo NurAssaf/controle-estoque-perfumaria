@@ -42,6 +42,19 @@ public class TratadorGlobalDeExcecoes {
                 campos);
         return ResponseEntity.badRequest().body(resposta);
     }
+    @ExceptionHandler(CategoriaNaoEncontradaException.class)
+    public ResponseEntity<ErroResposta> tratarCategoriaNaoEncontrada(
+            CategoriaNaoEncontradaException excecao,
+            HttpServletRequest requisicao) {
+
+        ErroResposta resposta = criarResposta(
+                HttpStatus.NOT_FOUND,
+                excecao.getMessage(),
+                requisicao.getRequestURI(),
+                Map.of());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
+    }
 
     private ErroResposta criarResposta(
             HttpStatus status,

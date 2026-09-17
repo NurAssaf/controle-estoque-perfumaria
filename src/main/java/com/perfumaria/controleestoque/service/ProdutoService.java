@@ -5,46 +5,67 @@ import com.perfumaria.controleestoque.entity.Produto;
 import com.perfumaria.controleestoque.exception.ProdutoNaoEncontradoException;
 import com.perfumaria.controleestoque.repository.ProdutoRepository;
 import org.springframework.stereotype.Service;
-
+import com.perfumaria.controleestoque.repository.CategoriaRepository;
+import com.perfumaria.controleestoque.exception.CategoriaNaoEncontradaException;
+import com.perfumaria.controleestoque.dto.ProdutoRespostaDTO;
+import com.perfumaria.controleestoque.dto.CategoriaRespostaDTO;
 import java.util.List;
 
 @Service
 public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
+    private final CategoriaRepository categoriaRepository;
 
-    public ProdutoService(ProdutoRepository produtoRepository) {
+    public ProdutoService(
+            ProdutoRepository produtoRepository,
+            CategoriaRepository categoriaRepository) {
         this.produtoRepository = produtoRepository;
+        this.categoriaRepository = categoriaRepository;
     }
 
-    public Produto cadastrar(ProdutoDTO dto) {
+    public ProdutoRespostaDTO cadastrar(ProdutoDTO dto) {
         Produto produto = new Produto();
         copiarDados(dto, produto);
-        return produtoRepository.save(produto);
+
+        Produto salvo = produtoRepository.save(produto);
+        return converterParaResposta(salvo);
     }
 
-    public List<Produto> listarTodos() {
-        return produtoRepository.findAll();
+    public List<ProdutoRespostaDTO> listarTodos() {
+        return produtoRepository.findAll()
+                .stream()
+                .map(this::converterParaResposta)
+                .toList();
     }
 
-    public Produto buscarPorId(Long id) {
+    private Produto buscarEntidadePorId(Long id) {
         return produtoRepository.findById(id)
                 .orElseThrow(() -> new ProdutoNaoEncontradoException(id));
     }
 
-    public Produto atualizar(Long id, ProdutoDTO dto) {
-        Produto produto = buscarPorId(id);
+    public ProdutoRespostaDTO buscarPorId(Long id) {
+        return converterParaResposta(buscarEntidadePorId(id));
+    }
+
+    public ProdutoRespostaDTO atualizar(Long id, ProdutoDTO dto) {
+        Produto produto = buscarEntidadePorId(id);
         copiarDados(dto, produto);
-        return produtoRepository.save(produto);
+
+        Produto salvo = produtoRepository.save(produto);
+        return converterParaResposta(salvo);
     }
 
     public void excluir(Long id) {
-        Produto produto = buscarPorId(id);
+        Produto produto = buscarEntidadePorId(id);
         produtoRepository.delete(produto);
     }
 
-    public List<Produto> buscarPorNome(String nome) {
-        return produtoRepository.findByNomeContainingIgnoreCase(nome);
+    public List<ProdutoRespostaDTO> buscarPorNome(String nome) {
+        return produtoRepository.findByNomeContainingIgnoreCase(nome)
+                .stream()
+                .map(this::converterParaResposta)
+                .toList();
     }
 
     private void copiarDados(ProdutoDTO dto, Produto produto) {
@@ -52,5 +73,34 @@ public class ProdutoService {
         produto.setMarca(dto.marca().trim());
         produto.setPreco(dto.preco());
         produto.setQuantidadeEstoque(dto.quantidadeEstoque());
+
+        if (dto.categoriaId() != null) {
+            produto.setCategoria(
+                    categoriaRepository.findById(dto.categoriaId())
+                            .orElseThrow(() ->
+                                    new CategoriaNaoEncontradaException(dto.categoriaId()))
+            );
+        } else {
+            produto.setCategoria(null);
+        }
+    }
+    private ProdutoRespostaDTO converterParaResposta(Produto produto) {
+        CategoriaRespostaDTO categoria = null;
+
+        if (produto.getCategoria() != null) {
+            categoria = new CategoriaRespostaDTO(
+                    produto.getCategoria().getId(),
+                    produto.getCategoria().getNome()
+            );
+        }
+
+        return new ProdutoRespostaDTO(
+                produto.getId(),
+                produto.getNome(),
+                produto.getMarca(),
+                produto.getPreco(),
+                produto.getQuantidadeEstoque(),
+                categoria
+        );
     }
 }
