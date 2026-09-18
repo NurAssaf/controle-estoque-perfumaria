@@ -7,13 +7,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
+import org.springframework.dao.DataIntegrityViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 @RestControllerAdvice
 public class TratadorGlobalDeExcecoes {
+    private static final Logger log =
+            LoggerFactory.getLogger(TratadorGlobalDeExcecoes.class);
 
     @ExceptionHandler(ProdutoNaoEncontradoException.class)
     public ResponseEntity<ErroResposta> tratarProdutoNaoEncontrado(
@@ -87,7 +91,8 @@ public class TratadorGlobalDeExcecoes {
     public ResponseEntity<ErroResposta> tratarConsultaCepIndisponivel(
             ConsultaCepIndisponivelException excecao,
             HttpServletRequest requisicao) {
-
+        log.error("Falha ao consultar a ViaCEP na rota {}",
+                requisicao.getRequestURI(), excecao);
         ErroResposta resposta = criarResposta(
                 HttpStatus.SERVICE_UNAVAILABLE,
                 excecao.getMessage(),
@@ -96,6 +101,21 @@ public class TratadorGlobalDeExcecoes {
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                 .body(resposta);
+    }
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ErroResposta> tratarIntegridadeDoBanco(
+            DataIntegrityViolationException excecao,
+            HttpServletRequest requisicao) {
+        log.warn("Conflito de integridade do banco na rota {}",
+                requisicao.getRequestURI());
+        ErroResposta resposta = criarResposta(
+                HttpStatus.CONFLICT,
+                "A operacao viola uma restricao do banco de dados. "
+                        + "Verifique dados duplicados ou registros vinculados.",
+                requisicao.getRequestURI(),
+                Map.of());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(resposta);
     }
     @ExceptionHandler(CepNaoEncontradoException.class)
     public ResponseEntity<ErroResposta> tratarCepNaoEncontrado(

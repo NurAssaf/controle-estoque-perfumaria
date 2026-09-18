@@ -14,6 +14,8 @@ import com.perfumaria.controleestoque.dto.FornecedorRespostaDTO;
 import com.perfumaria.controleestoque.entity.Fornecedor;
 import com.perfumaria.controleestoque.exception.FornecedorNaoEncontradoException;
 import com.perfumaria.controleestoque.repository.FornecedorRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import java.util.List;
 
 @Service
@@ -31,6 +33,8 @@ public class ProdutoService {
         this.categoriaRepository = categoriaRepository;
         this.fornecedorRepository = fornecedorRepository;
     }
+    private static final Logger log =
+            LoggerFactory.getLogger(ProdutoService.class);
 
     @Transactional
     public ProdutoRespostaDTO cadastrar(ProdutoDTO dto) {
@@ -38,6 +42,7 @@ public class ProdutoService {
         copiarDados(dto, produto);
 
         Produto salvo = produtoRepository.save(produto);
+        log.info("Produto salvo com ID {}", salvo.getId());
         return converterParaResposta(salvo);
     }
 
@@ -65,6 +70,7 @@ public class ProdutoService {
         copiarDados(dto, produto);
 
         Produto salvo = produtoRepository.save(produto);
+        log.info("Produto atualizado com ID {}", salvo.getId());
         return converterParaResposta(salvo);
     }
 
@@ -72,6 +78,7 @@ public class ProdutoService {
     public void excluir(Long id) {
         Produto produto = buscarEntidadePorId(id);
         produtoRepository.delete(produto);
+        log.info("Exclusao solicitada para o produto com ID {}", id);
     }
 
     @Transactional(readOnly = true)

@@ -8,6 +8,8 @@ import com.perfumaria.controleestoque.entity.Fornecedor;
 import com.perfumaria.controleestoque.exception.*;
 import com.perfumaria.controleestoque.repository.FornecedorRepository;
 import feign.FeignException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,7 +17,8 @@ import java.util.List;
 
 @Service
 public class FornecedorService {
-
+    private static final Logger log =
+            LoggerFactory.getLogger(FornecedorService.class);
     private final FornecedorRepository fornecedorRepository;
     private final ViaCepClient viaCepClient;
 
@@ -31,7 +34,7 @@ public class FornecedorService {
         if (fornecedorRepository.existsByCnpj(dto.cnpj())) {
             throw new CnpjJaCadastradoException(dto.cnpj());
         }
-
+        log.info("Consultando a ViaCEP para cadastrar fornecedor");
         ViaCepRespostaDTO endereco = consultarEndereco(dto.cep());
 
         Fornecedor fornecedor = new Fornecedor();
@@ -45,6 +48,7 @@ public class FornecedorService {
         fornecedor.setUf(endereco.uf());
 
         Fornecedor salvo = fornecedorRepository.save(fornecedor);
+        log.info("Fornecedor salvo com ID {}", salvo.getId());
         return converterParaResposta(salvo);
     }
 
