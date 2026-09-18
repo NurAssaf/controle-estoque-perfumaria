@@ -20,7 +20,10 @@ public record ProdutoDTO(
         @PositiveOrZero(message = "A quantidade em estoque nao pode ser negativa")
         Integer quantidadeEstoque,
 
-        @Positive(message = "O id da categoria deve ser maior que zero")
-        Long categoriaId
+        @Positive(message = "O ID da categoria deve ser positivo")
+        Long categoriaId,
+
+        @Positive(message = "O ID do fornecedor deve ser positivo")
+        Long fornecedorId
 ) {
 }

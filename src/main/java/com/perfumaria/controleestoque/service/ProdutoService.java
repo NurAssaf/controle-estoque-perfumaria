@@ -10,6 +10,10 @@ import com.perfumaria.controleestoque.exception.CategoriaNaoEncontradaException;
 import com.perfumaria.controleestoque.dto.ProdutoRespostaDTO;
 import com.perfumaria.controleestoque.dto.CategoriaRespostaDTO;
 import org.springframework.transaction.annotation.Transactional;
+import com.perfumaria.controleestoque.dto.FornecedorRespostaDTO;
+import com.perfumaria.controleestoque.entity.Fornecedor;
+import com.perfumaria.controleestoque.exception.FornecedorNaoEncontradoException;
+import com.perfumaria.controleestoque.repository.FornecedorRepository;
 import java.util.List;
 
 @Service
@@ -17,13 +21,17 @@ public class ProdutoService {
 
     private final ProdutoRepository produtoRepository;
     private final CategoriaRepository categoriaRepository;
+    private final FornecedorRepository fornecedorRepository;
 
     public ProdutoService(
             ProdutoRepository produtoRepository,
-            CategoriaRepository categoriaRepository) {
+            CategoriaRepository categoriaRepository,
+            FornecedorRepository fornecedorRepository) {
         this.produtoRepository = produtoRepository;
         this.categoriaRepository = categoriaRepository;
+        this.fornecedorRepository = fornecedorRepository;
     }
+
     @Transactional
     public ProdutoRespostaDTO cadastrar(ProdutoDTO dto) {
         Produto produto = new Produto();
@@ -84,12 +92,25 @@ public class ProdutoService {
             produto.setCategoria(
                     categoriaRepository.findById(dto.categoriaId())
                             .orElseThrow(() ->
-                                    new CategoriaNaoEncontradaException(dto.categoriaId()))
+                                    new CategoriaNaoEncontradaException(
+                                            dto.categoriaId()))
             );
         } else {
             produto.setCategoria(null);
         }
+
+        if (dto.fornecedorId() != null) {
+            produto.setFornecedor(
+                    fornecedorRepository.findById(dto.fornecedorId())
+                            .orElseThrow(() ->
+                                    new FornecedorNaoEncontradoException(
+                                            dto.fornecedorId()))
+            );
+        } else {
+            produto.setFornecedor(null);
+        }
     }
+
     private ProdutoRespostaDTO converterParaResposta(Produto produto) {
         CategoriaRespostaDTO categoria = null;
 
@@ -100,13 +121,32 @@ public class ProdutoService {
             );
         }
 
+        FornecedorRespostaDTO fornecedor = null;
+
+        if (produto.getFornecedor() != null) {
+            Fornecedor entidade = produto.getFornecedor();
+
+            fornecedor = new FornecedorRespostaDTO(
+                    entidade.getId(),
+                    entidade.getNome(),
+                    entidade.getCnpj(),
+                    entidade.getCep(),
+                    entidade.getRua(),
+                    entidade.getNumero(),
+                    entidade.getBairro(),
+                    entidade.getCidade(),
+                    entidade.getUf()
+            );
+        }
+
         return new ProdutoRespostaDTO(
                 produto.getId(),
                 produto.getNome(),
                 produto.getMarca(),
                 produto.getPreco(),
                 produto.getQuantidadeEstoque(),
-                categoria
+                categoria,
+                fornecedor
         );
     }
 }
