@@ -9,6 +9,7 @@ import com.perfumaria.controleestoque.repository.CategoriaRepository;
 import com.perfumaria.controleestoque.exception.CategoriaNaoEncontradaException;
 import com.perfumaria.controleestoque.dto.ProdutoRespostaDTO;
 import com.perfumaria.controleestoque.dto.CategoriaRespostaDTO;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
@@ -23,7 +24,7 @@ public class ProdutoService {
         this.produtoRepository = produtoRepository;
         this.categoriaRepository = categoriaRepository;
     }
-
+    @Transactional
     public ProdutoRespostaDTO cadastrar(ProdutoDTO dto) {
         Produto produto = new Produto();
         copiarDados(dto, produto);
@@ -32,6 +33,7 @@ public class ProdutoService {
         return converterParaResposta(salvo);
     }
 
+    @Transactional(readOnly = true)
     public List<ProdutoRespostaDTO> listarTodos() {
         return produtoRepository.findAll()
                 .stream()
@@ -44,10 +46,12 @@ public class ProdutoService {
                 .orElseThrow(() -> new ProdutoNaoEncontradoException(id));
     }
 
+    @Transactional(readOnly = true)
     public ProdutoRespostaDTO buscarPorId(Long id) {
         return converterParaResposta(buscarEntidadePorId(id));
     }
 
+    @Transactional
     public ProdutoRespostaDTO atualizar(Long id, ProdutoDTO dto) {
         Produto produto = buscarEntidadePorId(id);
         copiarDados(dto, produto);
@@ -56,11 +60,13 @@ public class ProdutoService {
         return converterParaResposta(salvo);
     }
 
+    @Transactional
     public void excluir(Long id) {
         Produto produto = buscarEntidadePorId(id);
         produtoRepository.delete(produto);
     }
 
+    @Transactional(readOnly = true)
     public List<ProdutoRespostaDTO> buscarPorNome(String nome) {
         return produtoRepository.findByNomeContainingIgnoreCase(nome)
                 .stream()
