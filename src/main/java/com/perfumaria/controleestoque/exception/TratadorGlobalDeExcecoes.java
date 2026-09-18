@@ -56,6 +56,60 @@ public class TratadorGlobalDeExcecoes {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
     }
 
+    @ExceptionHandler(FornecedorNaoEncontradoException.class)
+    public ResponseEntity<ErroResposta> tratarFornecedorNaoEncontrado(
+            FornecedorNaoEncontradoException excecao,
+            HttpServletRequest requisicao) {
+
+        ErroResposta resposta = criarResposta(
+                HttpStatus.NOT_FOUND,
+                excecao.getMessage(),
+                requisicao.getRequestURI(),
+                Map.of());
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(resposta);
+    }
+
+    @ExceptionHandler(CnpjJaCadastradoException.class)
+    public ResponseEntity<ErroResposta> tratarCnpjJaCadastrado(
+            CnpjJaCadastradoException excecao,
+            HttpServletRequest requisicao) {
+
+        ErroResposta resposta = criarResposta(
+                HttpStatus.CONFLICT,
+                excecao.getMessage(),
+                requisicao.getRequestURI(),
+                Map.of());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(resposta);
+    }
+    @ExceptionHandler(ConsultaCepIndisponivelException.class)
+    public ResponseEntity<ErroResposta> tratarConsultaCepIndisponivel(
+            ConsultaCepIndisponivelException excecao,
+            HttpServletRequest requisicao) {
+
+        ErroResposta resposta = criarResposta(
+                HttpStatus.SERVICE_UNAVAILABLE,
+                excecao.getMessage(),
+                requisicao.getRequestURI(),
+                Map.of());
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(resposta);
+    }
+    @ExceptionHandler(CepNaoEncontradoException.class)
+    public ResponseEntity<ErroResposta> tratarCepNaoEncontrado(
+            CepNaoEncontradoException excecao,
+            HttpServletRequest requisicao) {
+
+        ErroResposta resposta = criarResposta(
+                HttpStatus.BAD_REQUEST,
+                excecao.getMessage(),
+                requisicao.getRequestURI(),
+                Map.of());
+
+        return ResponseEntity.badRequest().body(resposta);
+    }
     private ErroResposta criarResposta(
             HttpStatus status,
             String mensagem,
@@ -69,4 +123,5 @@ public class TratadorGlobalDeExcecoes {
                 caminho,
                 campos);
     }
+
 }
