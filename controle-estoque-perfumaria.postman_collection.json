@@ -53,7 +53,7 @@
             "fornecedores"
           ]
         },
-        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+        "description": "Cadastra um fornecedor e consulta o endereço na ViaCEP. Retorna 201 quando o cadastro é concluído."
       },
       "response": []
     },
@@ -93,7 +93,7 @@
             "fornecedores"
           ]
         },
-        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+        "description": "Envia dados inválidos no cadastro de fornecedor. Espera resposta 400 com os campos que falharam na validação."
       },
       "response": []
     },
@@ -133,7 +133,7 @@
             "fornecedores"
           ]
         },
-        "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+        "description": "Tenta cadastrar um fornecedor com CNPJ já cadastrado. Espera resposta 409."
       },
       "response": []
     },

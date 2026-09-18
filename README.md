@@ -104,3 +104,13 @@ A coleção contém 9 testes, validados com sucesso:
 Para executar os testes de produtos, devem existir uma categoria com ID 1 e um fornecedor com ID 1. Em um banco novo, confira esses registros antes de executar a coleção.
 
 As variáveis `cnpjTeste` e `produtoId` são preenchidas pelos scripts da coleção. O CNPJ gerado serve apenas para testar a validação de formato de 14 dígitos.
+
+
+## Regras de negócio
+
+- O preço do produto deve ser maior que zero.
+- A quantidade em estoque não pode ser negativa.
+- Categoria e fornecedor são opcionais no produto. Quando informados, devem existir.
+- Na atualização por PUT, omitir categoriaId ou fornecedorId remove a respectiva associação.
+- O CNPJ deve conter 14 dígitos e não pode estar duplicado.
+- O CEP deve conter 8 dígitos e é consultado na ViaCEP para preencher o endereço.
